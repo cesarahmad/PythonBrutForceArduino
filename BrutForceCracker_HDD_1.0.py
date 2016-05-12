@@ -6,7 +6,7 @@ import datetime
 Tentando_Quebrar_Senha = 1
 
 def conferir_Energia():
-	aux = os.popen("hdparm -C /dev/sdc")
+	aux = os.popen("hdparm -C /dev/sda")
 	aux = [x for x in aux if x != '']
 
 	if ' drive state is:  active/idle\n' in aux:
@@ -15,7 +15,7 @@ def conferir_Energia():
 		return 0
 
 def conferir_Estado_HD():
-	aux = os.popen("hdparm -I /dev/sdc")
+	aux = os.popen("hdparm -I /dev/sda")
 	aux = [x for x in aux if x != '']
 
 	
@@ -32,24 +32,25 @@ def conferir_Estado_HD():
 def testa_Senha():
 	print ('senha:')
 	senha = raw_input()
-	os.system('hdparm --security-disable ' + senha +' /dev/sdc')
+	os.system('hdparm --security-disable ' + senha +' /dev/sda')
 
 def desliga_HDD():
 	os.system('echo -n "d                                           " > /dev/ttyUSB0')
 
 def liga_HDD():
-	os.system('echo -n "l                                            " > /dev/ttyUSB0')
+	os.system('echo -n "l                                                                                                                                          " > /dev/ttyUSB0')
 
 def Brutforce():
+	os.popen("stty -F /dev/ttyUSB0 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts")
 	global Tentando_Quebrar_Senha
-	senha = 0
+		
 		
 	while Tentando_Quebrar_Senha == 1:
 		##### os.popen('hdparm -C /dev/sd_____')
 		ligado = conferir_Energia()
 
 		liga_HDD()
-		time.sleep(20)
+		time.sleep(1)
 
 		while ligado == 1:
 			auxEstado = conferir_Estado_HD()
@@ -63,7 +64,6 @@ def Brutforce():
 				print('EXPIROU: ######################')
 				ligado = 0	
 				desliga_HDD()
-				time.sleep(5)
 				
 			# ACHAMOS A SENHA
 			elif auxEstado == '01':
