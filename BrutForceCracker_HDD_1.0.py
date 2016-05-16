@@ -30,11 +30,6 @@ def conferir_Estado_HD():
 	elif '\tnot\tenabled\n' in aux and '\t\texpired: security count\n' in aux:
 		return '01' 
 
-def testa_Senha():
-	print ('senha:')
-	senha = raw_input()
-	os.system('hdparm --security-disable ' + senha +' '+sd)
-
 def desliga_HDD():
 	os.system('echo -n "d                                           " > /dev/ttyUSB0')
 
@@ -52,28 +47,48 @@ def Brutforce():
 	print 'ligando hd'
 	liga_HDD()
 	print 'comando ligar enviado'
-	while Tentando_Quebrar_Senha == 1:
+	os.system('hdparm --Istdout %s > ata.identify'%sd)
+	while True:
 		print 'esperando hd'
 		espera_hd()
 		print 'hd voltou'
+
+		print 'senha:'
+		senha = raw_input()
+		for user in ['u','m']:
+			senha2 = os.popen("echo '%s' | ruby pw.rb -h ata.identify"%senha).read().strip()
+			for s in [senha,senha2]:
+				testa_Senha(s,user)
+
+
+def testa_Senha(senha,user):
+	auxEstado = conferir_Estado_HD()
+
+	# NOT ENABLE / NOT EXPIRED
+	if auxEstado == 11: 
+		print('testando A SENHA: ')
+		cmd = 'hdparm --user-master %s --security-disable %s %s'%(user,senha,sd)
+		print cmd
+		os.system(cmd)
 		auxEstado = conferir_Estado_HD()
-
-		# NOT ENABLE / NOT EXPIRED
-		if auxEstado == 11: 
-			print('testando A SENHA: ')
-			testa_Senha()
-		# NOT ENABLE / EXPIRED
-		elif auxEstado == 10: 
-			print('EXPIROU: ######################')
-			desliga_HDD()
-			#time.sleep(1)
-			liga_HDD()
-			
-		# ACHAMOS A SENHA
-		elif auxEstado == '01':
+		if auxEstado == '01':
 			print('ACHAMOS A SENHA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-			Tentando_Quebrar_Senha = 0
-
+			sys.exit(0)
+		
+	# NOT ENABLE / EXPIRED
+	elif auxEstado == 10: 
+		print('EXPIROU: ######################')
+		desliga_HDD()
+		#time.sleep(1)
+		liga_HDD()
+		testa_Senha(senha,user)
+		
+	# ACHAMOS A SENHA
+	elif auxEstado == '01':
+		print('ACHAMOS A SENHA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+		sys.exit(0)
+	else:
+		testa_Senha(senha,user)
 
 
 # Start of main()

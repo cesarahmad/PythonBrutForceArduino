@@ -1,0 +1,4 @@
+ = os.popen3('echo 123 | ruby ../lenovo-password/pw.rb sda.ata_identify')[1].read()
+ [x.read() for x in os.popen3(['./hdparm','--security-disable',s,'/dev/sda'])[1:]]
+ os.popen3(['./hdparm','--security-disable',s,'/dev/sda'])[2].read()
+
